@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const asyncHandler = require('../middleware/async.handler');
 const ErrorResponse = require('../utils/error.response');
+const cloudinary = require('../utils/cloudinary');
 
 // @desc    Get current logged in user
 // @route   GET /api/v1/users/me
@@ -46,4 +47,38 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
         success: true,
         data: {}
     });
+});
+
+// @desc    Upload avatar
+// @route   POST /api/v1/users/avatar
+// @access  Private
+exports.uploadAvatar = asyncHandler(async (req, res, next) => {
+    if (!req.file) {
+        return next(new ErrorResponse('Please upload a file', 400));
+    }
+
+    try {
+        // Convert buffer to data URI
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
+        const uploadResponse = await cloudinary.uploader.upload(dataURI, {
+            folder: 'avatars',
+            transformation: [{ width: 500, height: 500, crop: 'limit' }]
+        });
+
+        // Update user record
+        const user = await User.findByIdAndUpdate(req.user.id, { avatar: uploadResponse.secure_url }, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        console.error('Cloudinary Upload Error:', error);
+        return next(new ErrorResponse('Failed to upload image', 500));
+    }
 });

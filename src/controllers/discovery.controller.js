@@ -33,3 +33,16 @@ exports.searchRoutes = asyncHandler(async (req, res, next) => {
         data: routes
     });
 });
+
+// @desc    Get all travel routes
+// @route   GET /api/v1/discovery/all
+// @access  Public
+exports.getAllRoutes = asyncHandler(async (req, res, next) => {
+    const routes = await Route.find().sort('-createdAt');
+
+    res.status(200).json({
+        success: true,
+        count: routes.length,
+        data: routes
+    });
+});
