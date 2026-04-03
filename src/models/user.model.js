@@ -49,9 +49,13 @@ UserSchema.pre('save', async function (next) {
 
 // Sign JWT and return using ID
 UserSchema.methods.getSignedJwtToken = function () {
-    return jwt.sign({ id: this._id, email: this.email }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE
-    });
+    return jwt.sign(
+        { id: this._id, email: this.email },
+        process.env.JWT_SECRET || 'secret_fallback_for_dev_only', 
+        {
+            expiresIn: process.env.JWT_EXPIRE || '30d'
+        }
+    );
 };
 
 // Match user PIN to hashed PIN in database
