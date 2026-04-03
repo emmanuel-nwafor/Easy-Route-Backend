@@ -7,20 +7,35 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add a name']
     },
+    handle: {
+        type: String,
+        required: [true, 'Please add a unique handle (e.g. email or username)'],
+        unique: true,
+        trim: true
+    },
     email: {
         type: String,
-        required: [true, 'Please add an email'],
-        unique: true,
         match: [
             /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
             'Please add a valid email'
         ]
     },
-    password: {
+    publicKey: {
         type: String,
-        required: [true, 'Please add a password'],
-        minlength: 6,
-        select: false // Hide password by default
+        required: [true, 'Display Public Key is required for device-auth']
+    },
+    deviceId: {
+        type: String,
+        required: [true, 'Device ID is required']
+    },
+    recoveryCode: {
+        type: String,
+        required: [true, 'Recovery code is required'],
+        select: false
+    },
+    currentChallenge: {
+        type: String,
+        select: false
     },
     role: {
         type: String,
@@ -37,25 +52,11 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-// Encrypt password using bcrypt
-UserSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-});
-
-// Sign JWT and return
+// Sign JWT and return using ID
 UserSchema.methods.getSignedJwtToken = function () {
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    return jwt.sign({ id: this._id, handle: this.handle }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
     });
-};
-
-// Match user entered password to hashed password in database
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
 };
 
 module.exports = mongoose.model('User', UserSchema);

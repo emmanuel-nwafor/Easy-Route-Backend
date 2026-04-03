@@ -1,18 +1,16 @@
 const express = require('express');
 const {
     register,
-    login,
-    getMe,
-    logout
+    getChallenge,
+    verifySignature,
+    recoverAccount
 } = require('../controllers/auth.controller');
 
 const router = express.Router();
 
-const { protect } = require('../middleware/auth.middleware');
-
 router.post('/register', register);
-router.post('/login', login);
-router.get('/logout', logout);
-router.get('/me', protect, getMe);
+router.get('/challenge/:handle', getChallenge);
+router.post('/verify', verifySignature);
+router.post('/recover', recoverAccount);
 
 module.exports = router;

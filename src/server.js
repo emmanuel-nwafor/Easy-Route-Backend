@@ -1,13 +1,17 @@
+require('dotenv').config();
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const connectDB = require('./config/db.config');
 const errorMiddleware = require('./middleware/error.middleware');
 
-// Load env vars
-dotenv.config();
+// Load Routers
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+const discoveryRoutes = require('./routes/discovery.routes');
+const planRoutes = require('./routes/plan.routes');
+const bookingRoutes = require('./routes/booking.routes');
 
 // Connect to database
 connectDB();
@@ -26,9 +30,11 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 // Load Routers
-app.use('/api/v1/auth', require('./routes/auth.routes'));
-app.use('/api/v1/plans', require('./routes/plan.routes'));
-app.use('/api/v1/bookings', require('./routes/booking.routes'));
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/discovery', discoveryRoutes);
+app.use('/api/v1/plans', planRoutes);
+app.use('/api/v1/bookings', bookingRoutes);
 
 // Error Middleware (Must be last)
 app.use(errorMiddleware);
@@ -42,6 +48,7 @@ const server = app.listen(PORT, () => {
 // Handle unhandled rejections
 process.on('unhandledRejection', (err, promise) => {
     console.log(` Rejection Error: ${err.message}`);
+
     // Close server & exit process
     server.close(() => process.exit(1));
 });
