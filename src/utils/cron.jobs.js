@@ -123,9 +123,12 @@ const generateRandomRoute = () => {
 };
 
 const initCronJobs = () => {
-    // Generate 20 random routes every 30 minutes
-    cron.schedule('*/30 * * * *', async () => {
-        console.log('--- CRON: Refreshing Travel Routes ---');
+    const cronInterval = process.env.CRON_INTERVAL || '*/30 * * * *';
+    const cronResetTime = process.env.CRON_RESET_TIME || '0 0 * * *';
+
+    // Generate 20 random routes based on configured interval
+    cron.schedule(cronInterval, async () => {
+        console.log(`--- CRON: Refreshing Travel Routes (${cronInterval}) ---`);
         try {
             const routes = [];
             for (let i = 0; i < 20; i++) {
@@ -138,18 +141,19 @@ const initCronJobs = () => {
         }
     });
 
-    // Clear expired routes every day at midnight (Backup for TTL Index)
-    cron.schedule('0 0 * * *', async () => {
-        console.log('--- CRON: Daily Reset of Discovery Database ---');
+    // Clear expired routes based on configured reset time
+    cron.schedule(cronResetTime, async () => {
+        console.log(`--- CRON: Daily Reset of Discovery Database (${cronResetTime}) ---`);
         try {
             await Route.deleteMany({});
-            console.log('Discovery database cleared for standard daily reset.');
+            console.log('Discovery database cleared for standard reset.');
         } catch (err) {
             console.error('CRON ERROR: Database reset failed:', err);
         }
     });
 
-    console.log('Automation initialized: Route Generator (30m) and Daily Reset (24h).');
+    console.log(`Automation initialized: Route Generator (${cronInterval}) and Reset (${cronResetTime}).`);
 };
+
 
 module.exports = initCronJobs;
