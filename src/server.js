@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const connectDB = require('./config/db.config');
 const errorMiddleware = require('./middleware/error.middleware');
+const initCronJobs = require('./utils/cron.jobs');
 
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
@@ -47,6 +48,9 @@ app.use('/api/v1/plans', planRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
 
 app.use(errorMiddleware);
+
+// Initialize Cron Jobs
+initCronJobs();
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
