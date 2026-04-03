@@ -28,7 +28,37 @@ const BookingSchema = new mongoose.Schema({
     details: {
         type: String
     },
+    departureLocation: {
+        name: String,
+        code: String
+    },
+    arrivalLocation: {
+        name: String,
+        code: String
+    },
+    departureTime: {
+        type: Date
+    },
+    arrivalTime: {
+        type: Date
+    },
+    operator: {
+        type: String
+    },
+    seatNumber: {
+        type: String
+    },
+    travelClass: {
+        type: String,
+        enum: ['Economy', 'Business', 'First Class'],
+        default: 'Economy'
+    },
+    vehicleType: {
+        type: String,
+        enum: ['flight', 'train', 'bus', 'car-rental', 'activity']
+    },
     cost: {
+
         type: Number,
         default: 0
     },
