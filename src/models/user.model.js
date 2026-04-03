@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -15,17 +16,11 @@ const UserSchema = new mongoose.Schema({
             'Please add a valid email'
         ]
     },
-    otp: {
+    pin: {
         type: String,
+        required: [true, 'Please add a 6-digit PIN'],
+        minlength: 6,
         select: false
-    },
-    otpExpire: {
-        type: Date,
-        select: false
-    },
-    isEmailVerified: {
-        type: Boolean,
-        default: false
     },
     role: {
         type: String,
@@ -42,11 +37,26 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
+// Encrypt PIN using bcrypt
+UserSchema.pre('save', async function (next) {
+    if (!this.isModified('pin')) {
+        next();
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    this.pin = await bcrypt.hash(this.pin, salt);
+});
+
 // Sign JWT and return using ID
 UserSchema.methods.getSignedJwtToken = function () {
     return jwt.sign({ id: this._id, email: this.email }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
     });
+};
+
+// Match user PIN to hashed PIN in database
+UserSchema.methods.matchPin = async function (enteredPin) {
+    return await bcrypt.compare(enteredPin, this.pin);
 };
 
 module.exports = mongoose.model('User', UserSchema);
