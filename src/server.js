@@ -16,6 +16,7 @@ const userRoutes = require('./routes/user.routes');
 const discoveryRoutes = require('./routes/discovery.routes');
 const planRoutes = require('./routes/plan.routes');
 const bookingRoutes = require('./routes/booking.routes');
+const notificationRoutes = require('./routes/notification.routes');
 
 connectDB();
 
@@ -46,6 +47,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/discovery', discoveryRoutes);
 app.use('/api/v1/plans', planRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 app.use(errorMiddleware);
 

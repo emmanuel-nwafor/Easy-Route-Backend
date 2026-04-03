@@ -1,6 +1,7 @@
 const asyncHandler = require('../middleware/async.handler');
 const Booking = require('../models/booking.model');
 const Plan = require('../models/plan.model');
+const Notification = require('../models/notification.model');
 
 /**
  * @desc    Get all bookings for a specific plan
@@ -75,6 +76,14 @@ exports.addBooking = asyncHandler(async (req, res, next) => {
     }
 
     const booking = await Booking.create(req.body);
+
+    await Notification.create({
+        userId: req.user.id,
+        title: 'Booking Confirmed!',
+        message: `Your journey plan to ${plan.destination || 'your destination'} has been finalized!`,
+        type: 'booking',
+        unread: true
+    });
 
     res.status(201).json({
         success: true,

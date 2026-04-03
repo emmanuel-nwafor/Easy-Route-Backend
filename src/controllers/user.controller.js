@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const Notification = require('../models/notification.model');
 const asyncHandler = require('../middleware/async.handler');
 const ErrorResponse = require('../utils/error.response');
 const cloudinary = require('../utils/cloudinary');
@@ -22,6 +23,7 @@ exports.updateUserDetails = asyncHandler(async (req, res, next) => {
     const fieldsToUpdate = {
         name: req.body.name,
         email: req.body.email,
+        phone: req.body.phone,
         avatar: req.body.avatar
     };
 
@@ -29,6 +31,14 @@ exports.updateUserDetails = asyncHandler(async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
         new: true,
         runValidators: true
+    });
+
+    await Notification.create({
+        userId: req.user.id,
+        title: 'Profile Updated',
+        message: 'Your personal information was successfully updated. Check your settings to review.',
+        type: 'system',
+        unread: true
     });
 
     res.status(200).json({
@@ -71,6 +81,14 @@ exports.uploadAvatar = asyncHandler(async (req, res, next) => {
         const user = await User.findByIdAndUpdate(req.user.id, { avatar: uploadResponse.secure_url }, {
             new: true,
             runValidators: true
+        });
+
+        await Notification.create({
+            userId: req.user.id,
+            title: 'Avatar Updated',
+            message: 'Your profile picture was successfully updated.',
+            type: 'system',
+            unread: true
         });
 
         res.status(200).json({
