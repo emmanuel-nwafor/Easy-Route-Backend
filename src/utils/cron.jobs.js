@@ -76,11 +76,11 @@ const generateRandomRoute = () => {
     }
 
     const operator = OPERATORS[Math.floor(Math.random() * OPERATORS.length)];
-    
+
     // Pick transport-specific thumbnail library
     const visuals = TRANSPORT_VISUALS[operator.type] || TRANSPORT_VISUALS.flight;
     const thumbnail = visuals[Math.floor(Math.random() * visuals.length)];
-    
+
     // Pricing logic
     const price = Math.floor(Math.random() * 1600) + 200;
 
@@ -131,7 +131,7 @@ const initCronJobs = () => {
         console.log(`--- CRON: Refreshing Travel Routes (${cronInterval}) ---`);
         try {
             const routes = [];
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 10; i++) {
                 routes.push(generateRandomRoute());
             }
             await Route.insertMany(routes);

@@ -3,6 +3,7 @@ const {
     getBookings,
     getBooking,
     addBooking,
+    placeBooking,
     updateBooking,
     deleteBooking
 } = require('../controllers/booking.controller');
@@ -17,7 +18,7 @@ router.use(protect);
 router
     .route('/')
     .get(getBookings)
-    .post(addBooking);
+    .post(placeBooking);
 
 router
     .route('/:id')
