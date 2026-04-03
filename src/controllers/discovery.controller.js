@@ -24,12 +24,25 @@ exports.searchRoutes = asyncHandler(async (req, res, next) => {
 
     const routes = await Route.find(query).sort('-createdAt');
 
-    // If no exact match found, we could return nearby or curated options (Advanced implementation)
-    // For now, we return the matches from the Route collection
+    // If no exact match found, return nearby or curated options
+    if (routes.length === 0) {
+        const curated = await Route.find(type ? { type } : {})
+            .sort('-createdAt')
+            .limit(10);
+
+        return res.status(200).json({
+            success: true,
+            count: curated.length,
+            isCurated: true,
+            message: `No exact matches for ${from} ➔ ${to}. Here are some curated routes you might like.`,
+            data: curated
+        });
+    }
 
     res.status(200).json({
         success: true,
         count: routes.length,
+        isCurated: false,
         data: routes
     });
 });
