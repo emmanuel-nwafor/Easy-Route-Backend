@@ -1,16 +1,14 @@
 const express = require('express');
 const {
     register,
-    getChallenge,
-    verifySignature,
-    recoverAccount
+    login,
+    verifyOtp
 } = require('../controllers/auth.controller');
 
 const router = express.Router();
 
 router.post('/register', register);
-router.get('/challenge/:handle', getChallenge);
-router.post('/verify', verifySignature);
-router.post('/recover', recoverAccount);
+router.post('/login', login);
+router.post('/verify-otp', verifyOtp);
 
 module.exports = router;
