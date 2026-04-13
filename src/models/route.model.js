@@ -67,6 +67,14 @@ const RouteSchema = new mongoose.Schema({
         default: Date.now,
         expires: 86400
     }
+}, {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+// Virtual for 'time' fallback to support frontend displays
+RouteSchema.virtual('time').get(function() {
+    return this.departureTime || '09:00 AM';
 });
 
 // Index for search

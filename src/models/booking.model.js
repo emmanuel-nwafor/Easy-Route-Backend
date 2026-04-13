@@ -79,6 +79,25 @@ const BookingSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+// Virtual for 'time' fallback to support frontend displays
+BookingSchema.virtual('time').get(function() {
+    if (!this.departureTime) return '09:00 AM';
+    
+    // If it's already a string, return it
+    if (typeof this.departureTime === 'string') return this.departureTime;
+    
+    // If it's a Date object, format it properly
+    const date = new Date(this.departureTime);
+    return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: true 
+    });
 });
 
 module.exports = mongoose.model('Booking', BookingSchema);
